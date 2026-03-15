@@ -1,3 +1,5 @@
+local mount = {}
+
 local function sanitycheck(...)
   local toload = { ... }
   for n = 1, #toload do
@@ -9,12 +11,8 @@ local function sanitycheck(...)
       error(msg)
     end
 
-    if t == "string" and loadable ~= "current" then
-      error('expected function or string "current", got: ' .. tostring(loadable))
-    end
-
-    if t ~= "string" and t ~= "function" then
-      error('expected function or string "current", got: ' .. tostring(loadable))
+    if t ~= "function" and t ~= "table" then
+      error('expected function or table, got: ' .. tostring(loadable))
     end
   end
 end
@@ -67,22 +65,31 @@ local function unmount()
   return current
 end
 
-local function mount(...)
+function mount.mount(...)
   sanitycheck(...)
   local current = unmount()
+  return mount.every(current, ...)
+end
 
+function mount.only(...)
+  sanitycheck(...)
+  unmount()
+  return mount.every(...)
+end
+
+function mount.every(...)
   local toload = { ... }
   local handlers = {}
   for _, loadable in ipairs(toload) do
-    local h
-    if loadable == "current" then
-      h = current
-    else
+    local t
+    if type(loadable) == "function" then
       loadable()
-      h = unmount()
+      t = unmount()
+    elseif type(loadable) == "table" then
+      t = loadable
     end
 
-    for handler, f in pairs(h) do
+    for handler, f in pairs(t) do
       if handlers[handler] == nil then
         handlers[handler] = {}
       end
@@ -103,5 +110,12 @@ local function mount(...)
     end
   end
 end
+
+local metatable = {
+  __call = function(_, root, ...)
+    return mount.mount(root, ...)
+  end
+}
+setmetatable(mount, metatable)
 
 return mount
