@@ -2,10 +2,12 @@ local mount = require("mount")
 local it = test
 
 describe("given a typical main.lua env with handlers", function()
+  local originalpressed
   local originaldraw
   before_each(function()
     _G.love = {}
-    love.keypressed = function() end
+    originalpressed = spy.new(function() end)
+    love.keypressed = originalpressed
     originaldraw = spy.new(function() end)
     love.draw = originaldraw
   end)
@@ -23,8 +25,29 @@ describe("given a typical main.lua env with handlers", function()
       mount(loadfakefile())
     end)
 
+    it("includes previous handlers", function()
+      love.keypressed()
+      assert.spy(originalpressed).was.called()
+    end)
+  end)
+
+  describe("when mounting another scene with .only", function()
+    local newpressed
+    before_each(function()
+      newpressed = spy.new(function() end)
+      local function loadfakefile()
+        return function()
+          love.keypressed = newpressed
+        end
+      end
+
+      mount.only(loadfakefile())
+    end)
+
     it("doesn't include previous handlers", function()
-      assert.is_nil(love.keypressed)
+      love.keypressed()
+      assert.spy(originalpressed).was.not_called()
+      assert.spy(newpressed).was.called()
     end)
   end)
 
@@ -60,7 +83,7 @@ describe("given a typical main.lua env with handlers", function()
         end
       end
 
-      mount("current", loadfakefile())
+      mount(loadfakefile())
     end)
 
     it("keeps both handlers", function()
