@@ -7,17 +7,17 @@ function love.keypressed(key)
   end
 
   if key == "2" then
-    mount(
+    mount({
       loadfile("test/scene_a/main.lua"),
       loadfile("test/scene_b/main.lua")
-    )
+    })
   end
 
   if key == "3" and not additional then
-    mount(
+    mount({
       "current",
       loadfile("test/additional/main.lua")
-    )
+    })
 
     additional = true
   end
