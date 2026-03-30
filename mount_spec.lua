@@ -96,3 +96,25 @@ describe("when given a number", function()
     assert.is_string(errmessage)
   end)
 end)
+
+describe("given a blank love environment", function()
+  before_each(function()
+    _G.love = {}
+  end)
+
+  after_each(function()
+    _G.love = nil
+  end)
+
+  describe("when using mount.bind with arguments", function()
+    local tomount
+    before_each(function()
+      tomount = spy.new()
+      mount(mount.bind(tomount, 1, 2, 3))
+    end)
+
+    it("binds those parameters when mounting", function()
+      assert.spy(tomount).was_called_with(1, 2, 3)
+    end)
+  end)
+end)
