@@ -64,24 +64,39 @@ function mount.mount(toload)
 
   local handlers = {}
   for _, loadable in ipairs(toload) do
-    local h
     if loadable == "current" then
-      h = current
+      local previous = love._mount or current
+      for handler, callbacks in pairs(previous) do
+        if type(callbacks) == "function" or #callbacks == 0 then
+          callbacks = { callbacks }
+        end
+
+        for _, f in ipairs(callbacks) do
+          if handlers[handler] == nil then
+            handlers[handler] = {}
+          end
+
+          table.insert(handlers[handler], f)
+        end
+      end
     else
       loadable()
-      h = unmount()
-    end
 
-    for handler, f in pairs(h) do
-      if handlers[handler] == nil then
-        handlers[handler] = {}
+      for handler, f in pairs(unmount()) do
+        if handlers[handler] == nil then
+          handlers[handler] = {}
+        end
+
+        table.insert(handlers[handler], f)
       end
-
-      table.insert(handlers[handler], f)
     end
   end
 
+  love._mount = love._mount or {}
+
   for handler, callbacks in pairs(handlers) do
+    love._mount[handler] = callbacks
+
     if #callbacks == 1 then
       love[handler] = callbacks[1]
     else
