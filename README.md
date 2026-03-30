@@ -122,6 +122,25 @@ mount(mount.bind(build, world))
 
 e.g. Sharing a physics world in between objects.
 
+> Note: It is possible to access bound values via the top level vararg.
+
+```lua
+-- player.lua
+local world, a, b, c = ...
+-- {}, 1, 2, 3
+
+function love.keypressed() end
+function love.draw() end
+
+-- main.lua
+local player = mount.bind(
+  loadfile("player.lua"),
+  {}, 1, 2, 3
+)
+
+mount(player)
+```
+
 ## Trying it out
 
 Clone the repo, run LÖVE 2D on the test directory.
