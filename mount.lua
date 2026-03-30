@@ -1,13 +1,7 @@
-local function sanitycheck(...)
-  local toload = { ... }
+local function sanitycheck(toload)
   for n = 1, #toload do
     local loadable = toload[n]
     local t = type(loadable)
-    if t == "nil" and type(toload[n + 1]) == "string" then
-      local err = toload[n + 1]
-      local msg = string.format('expected non-nil at position %s, got: %s and "%s"', n, t, err)
-      error(msg)
-    end
 
     if t == "string" and loadable ~= "current" then
       error('expected function or string "current", got: ' .. tostring(loadable))
@@ -67,11 +61,14 @@ local function unmount()
   return current
 end
 
-local function mount(...)
-  sanitycheck(...)
+local function mount(toload)
+  if type(toload) == "function" then
+    toload = { toload }
+  end
+
+  sanitycheck(toload)
   local current = unmount()
 
-  local toload = { ... }
   local handlers = {}
   for _, loadable in ipairs(toload) do
     local h

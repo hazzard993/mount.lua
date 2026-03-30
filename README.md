@@ -79,7 +79,7 @@ e.g. Switching from pause menu to gameplay, switching between menus, switching f
 ```lua
 local scene1 = loadfile("scene1.lua")
 local scene2 = loadfile("scene2.lua")
-mount(scene1, scene2)
+mount({ scene1, scene2 })
 ```
 
 |        | main.lua   | scene1.lua | scene1.lua |
@@ -93,7 +93,7 @@ e.g. Loading in a terrain manager and player control system.
 
 ```lua
 local scene = loadfile("scene.lua")
-mount("current", scene)
+mount({ "current", scene })
 ```
 
 |        | main.lua | scene.lua  |
