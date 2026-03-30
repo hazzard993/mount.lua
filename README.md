@@ -103,6 +103,25 @@ mount({ "current", scene })
 
 e.g. Layering in a weather effect system to the current world.
 
+## Other Features
+
+### Binding arguments
+
+```lua
+local function wall(world)
+  -- love.physics.newBody(world, ...)
+end
+
+local function player(world)
+  -- love.physics.newBody(world, ...)
+end
+
+local world = {}
+mount(mount.bind(build, world))
+```
+
+e.g. Sharing a physics world in between objects.
+
 ## Trying it out
 
 Clone the repo, run LÖVE 2D on the test directory.
