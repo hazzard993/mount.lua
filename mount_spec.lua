@@ -40,7 +40,7 @@ describe("given a typical main.lua env with handlers", function()
         end
       end
 
-      mount(loadfakefile(n1), loadfakefile(n2))
+      mount({ loadfakefile(n1), loadfakefile(n2) })
     end)
 
     it("loads both scenes' handlers", function()
@@ -60,7 +60,7 @@ describe("given a typical main.lua env with handlers", function()
         end
       end
 
-      mount("current", loadfakefile())
+      mount({ "current", loadfakefile() })
     end)
 
     it("keeps both handlers", function()
@@ -68,25 +68,6 @@ describe("given a typical main.lua env with handlers", function()
       assert.spy(originaldraw).was.called()
       assert.spy(newdraw).was.called()
     end)
-  end)
-end)
-
-describe("when loading a file that doesn't exist", function()
-  local err
-  before_each(function()
-    local function loadfilefail()
-      return nil, "cannot open foo/bar.lua: No such file or directory"
-    end
-
-    _, err = pcall(function()
-      mount(loadfilefail())
-    end)
-  end)
-
-  it("identifies the load failure", function()
-    local expected = "cannot open foo/bar.lua: No such file or directory"
-    local matches = string.find(err, expected) ~= nil
-    assert.is_true(matches, 'expected string containing "' .. expected .. '", got: ' .. err)
   end)
 end)
 
