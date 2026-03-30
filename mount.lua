@@ -1,18 +1,3 @@
-local function sanitycheck(toload)
-  for n = 1, #toload do
-    local loadable = toload[n]
-    local t = type(loadable)
-
-    if t == "string" and loadable ~= "current" then
-      error('expected function or string "current", got: ' .. tostring(loadable))
-    end
-
-    if t ~= "string" and t ~= "function" then
-      error('expected function or string "current", got: ' .. tostring(loadable))
-    end
-  end
-end
-
 local handlers = {
   "draw",
   -- "errhand", -- do not capture errors
@@ -61,12 +46,20 @@ local function unmount()
   return current
 end
 
-local function mount(toload)
-  if type(toload) == "function" then
+local mount = {}
+
+function mount.bind(f, ...)
+  local args = { ... }
+  return function()
+    return f(unpack(args))
+  end
+end
+
+function mount.mount(toload)
+  if type(toload) == "function" or #toload == 0 then
     toload = { toload }
   end
 
-  sanitycheck(toload)
   local current = unmount()
 
   local handlers = {}
@@ -100,5 +93,12 @@ local function mount(toload)
     end
   end
 end
+
+local metatable = {
+  __call = function(_, ...)
+    return mount.mount(...)
+  end
+}
+setmetatable(mount, metatable)
 
 return mount
